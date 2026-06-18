@@ -1,0 +1,248 @@
+# CareerOS Roadmap
+
+## Planning Principles
+
+The roadmap is optimized for:
+
+- fast delivery of a useful personal system
+- correctness over feature breadth
+- local-first operation where practical
+- minimal infrastructure
+- explicit checkpoints for data quality and factual safety
+
+## MVP Scope
+
+The MVP includes:
+
+1. One local user profile
+2. Resume and source-document import
+3. Structured fact extraction with manual verification
+4. Internship ingestion from a limited set of curated sources
+5. Deduplication and normalized internship storage
+6. Embedding-assisted ranking with deterministic score breakdown
+7. Human-readable explanation and skill-gap analysis
+8. Tailored resume generation from verified facts only
+9. Docker Compose-based local deployment
+
+The MVP excludes:
+
+- multi-user auth
+- browser automation
+- autonomous application submission
+- advanced frontend product design
+- large-scale analytics
+- interview coaching
+- cover letter generation as a primary workflow
+
+## Phase 0: Project Foundation
+
+Goal:
+
+Create the implementation skeleton and development standards.
+
+Deliverables:
+
+- repository scaffold
+- FastAPI app bootstrapped
+- PostgreSQL and Docker Compose wiring
+- SQLAlchemy and Alembic setup
+- linting, typing, tests, pre-commit
+- docs baseline from `docs/`
+
+Acceptance criteria:
+
+- `docker compose up` starts API and database
+- health endpoint works
+- migrations can be applied cleanly
+- test harness runs locally
+
+## Phase 1: Structured Career Profile
+
+Goal:
+
+Make the profile system real before tackling matching.
+
+Deliverables:
+
+- schema for profile, documents, skills, education, experience, projects
+- document upload and storage paths
+- PDF text extraction
+- structured extraction pipeline to typed JSON
+- verification workflow for facts
+- CRUD APIs for profile records
+
+Acceptance criteria:
+
+- a master resume can be imported
+- extracted facts land in the database as pending or verified entities
+- the user can correct and verify facts
+- the canonical profile can be reconstructed from database records alone
+
+Implementation status:
+
+- Completed: profile creation, resume upload, source document persistence
+- Completed: deterministic extraction runs, fact candidates, and evidence spans
+- Completed: verification and claim promotion pipeline with approved claims and verification events
+- Pending within broader phase: richer profile canonicalization beyond staging, additional source parsing coverage
+
+## Phase 2: Internship Ingestion
+
+Goal:
+
+Build the opportunity pipeline with a small set of reliable sources.
+
+Suggested starting sources:
+
+- LinkedIn only if a stable compliant approach exists
+- company career pages for target employers
+- Wellfound
+- Internshala or similar India-focused boards if allowed and maintainable
+- curated RSS or API-based sources where possible
+
+Deliverables:
+
+- source registry
+- ingestion adapters
+- raw payload storage
+- normalized internship model
+- deduplication strategy
+- scheduled sync jobs
+
+Acceptance criteria:
+
+- at least 2 to 4 sources ingest successfully
+- duplicate listings collapse into one canonical posting
+- posting provenance remains traceable
+
+Implementation status:
+
+- Completed foundation: manual source registry
+- Completed foundation: API-submitted manual internship payload ingestion
+- Completed foundation: ingestion runs, raw postings, normalized internships, and duplicate prevention
+- Pending within broader phase: external compliant source adapters, scheduled sync jobs, and multiple real source integrations
+
+## Phase 3: Matching And Ranking
+
+Goal:
+
+Turn stored jobs into useful prioritized recommendations.
+
+Deliverables:
+
+- embedding pipeline
+- skill extraction from job descriptions
+- hybrid scoring engine
+- persisted match runs
+- explanation payload generation
+- skill-gap records
+
+Acceptance criteria:
+
+- the system can rank postings for the profile
+- each ranking contains interpretable score components
+- at least basic gap analysis is visible per match
+
+## Phase 4: Tailored Resume Generation
+
+Goal:
+
+Produce truthful, targeted resumes from verified data.
+
+Deliverables:
+
+- resume template model
+- relevance-based fact selection
+- section traceability metadata
+- HTML and PDF rendering
+- artifact storage and retrieval
+
+Acceptance criteria:
+
+- a targeted resume can be generated for a chosen internship
+- every rendered bullet can be traced to verified source facts
+- no unverified facts appear in output
+
+## Phase 5: Workflow Hardening
+
+Goal:
+
+Improve reliability, observability, and usability.
+
+Deliverables:
+
+- better error reporting
+- ingestion retry and backoff
+- admin endpoints or simple UI for reviewing runs
+- improved logs and metrics
+- dataset cleanup scripts
+
+Acceptance criteria:
+
+- failures are diagnosable
+- reruns are safe
+- common maintenance tasks are scripted
+
+## Recommended Delivery Sequence
+
+1. Foundation
+2. Profile system
+3. Ingestion
+4. Matching
+5. Resume generation
+6. Hardening
+
+This order matters because the structured profile is the prerequisite for safe matching and tailored resume generation.
+
+## Future Roadmap
+
+### Stage 2: Better Intelligence
+
+- local LLM prompt tuning for extraction and explanations
+- model evaluation harness for ranking quality
+- improved semantic retrieval over projects and coursework
+- stronger gap remediation suggestions
+
+### Stage 3: Career Operating System Expansion
+
+- application tracker
+- company watchlists
+- saved search presets
+- outreach and networking notes
+- interview preparation artifacts
+
+### Stage 4: Multi-User Readiness
+
+- authentication and authorization
+- tenant-aware storage and retrieval
+- user isolation tests
+- admin controls
+
+### Stage 5: Optional Service Extraction
+
+Only consider this if the modular monolith becomes operationally limiting.
+
+Possible extraction candidates:
+
+- ingestion worker
+- embedding service
+- document rendering service
+
+This should not happen before there is clear evidence of scale or maintenance pain.
+
+## Open Questions To Revisit Later
+
+- which exact job sources are compliant and maintainable long-term
+- whether remote fallback LLMs are acceptable for personal usage
+- whether resume generation should eventually support DOCX export
+- whether a lightweight frontend is needed before or after MVP stability
+
+## Definition Of Done For Version 1
+
+Version 1 is complete when CareerOS can:
+
+1. store a verified structured candidate profile
+2. ingest fresh internships from multiple sources
+3. rank internships with reasons
+4. identify missing skills
+5. generate a truthful tailored resume from verified facts
+6. run locally via Docker Compose without depending on conversation memory

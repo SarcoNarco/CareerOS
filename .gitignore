@@ -1,0 +1,14 @@
+.venv/
+.venv_check/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+.env
+data/incoming/*
+data/exports/*
+!data/incoming/.gitkeep
+!data/exports/.gitkeep

@@ -17,9 +17,25 @@ from careeros.db.models.internship import (
     SourceType,
 )
 from careeros.schemas.internship import ManualPostingPayload
-from careeros.services.deduper import compute_content_hash, compute_dedupe_key, find_duplicate_internship
+from careeros.services.deduper import (
+    compute_content_hash,
+    compute_dedupe_key,
+    find_duplicate_internship,
+)
 from careeros.services.normalizer import normalize_posting
 from careeros.services.source_registry import get_source
+
+
+@dataclass(slots=True)
+class AdapterPosting:
+    payload: ManualPostingPayload
+    raw_payload: dict[str, object]
+
+
+@dataclass(slots=True)
+class _IngestablePosting:
+    payload: ManualPostingPayload
+    raw_payload: dict[str, object] | None
 
 
 @dataclass(slots=True)
@@ -46,15 +62,61 @@ def ingest_manual_postings(
             detail="Only manual sources can be ingested through this endpoint.",
         )
 
+    return _ingest_postings(
+        session=session,
+        source_id=source.id,
+        adapter_name="manual",
+        postings=[
+            _IngestablePosting(payload=posting, raw_payload=None)
+            for posting in postings
+        ],
+    )
+
+
+def ingest_adapter_postings(
+    session: Session,
+    source_id: UUID,
+    adapter_name: str,
+    postings: list[AdapterPosting],
+) -> IngestionOutcome:
+    source = get_source(session=session, source_id=source_id)
+    if not source.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Internship source is inactive.",
+        )
+    if source.source_type == SourceType.MANUAL:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Manual sources must use manual ingestion.",
+        )
+
+    return _ingest_postings(
+        session=session,
+        source_id=source.id,
+        adapter_name=adapter_name,
+        postings=[
+            _IngestablePosting(payload=posting.payload, raw_payload=posting.raw_payload)
+            for posting in postings
+        ],
+    )
+
+
+def _ingest_postings(
+    session: Session,
+    source_id: UUID,
+    adapter_name: str,
+    postings: list[_IngestablePosting],
+) -> IngestionOutcome:
     started_at = utc_now()
     ingestion_run = IngestionRun(
-        source_id=source.id,
+        source_id=source_id,
         started_at=started_at,
         status=IngestionRunStatus.RUNNING,
         items_seen=len(postings),
         items_created=0,
         items_updated=0,
-        metadata_json={"adapter": "manual"},
+        metadata_json={"adapter": adapter_name},
     )
     session.add(ingestion_run)
     session.flush()
@@ -63,14 +125,15 @@ def ingest_manual_postings(
     duplicate_count = 0
 
     try:
-        for payload in postings:
-            payload_json = payload.model_dump(mode="json")
+        for posting in postings:
+            payload = posting.payload
+            payload_json = posting.raw_payload or payload.model_dump(mode="json")
             content_hash = compute_content_hash(payload_json)
             normalized = normalize_posting(payload)
             dedupe_key = compute_dedupe_key(payload, normalized)
 
             raw_posting = RawPosting(
-                source_id=source.id,
+                source_id=source_id,
                 ingestion_run_id=ingestion_run.id,
                 external_id=payload.external_id,
                 source_url=str(payload.source_url) if payload.source_url is not None else None,
@@ -83,7 +146,7 @@ def ingest_manual_postings(
 
             duplicate = find_duplicate_internship(
                 session=session,
-                source_id=source.id,
+                source_id=source_id,
                 dedupe_key=dedupe_key,
                 content_hash=content_hash,
             )
@@ -92,7 +155,7 @@ def ingest_manual_postings(
                 continue
 
             internship = Internship(
-                source_id=source.id,
+                source_id=source_id,
                 raw_posting_id=raw_posting.id,
                 title=normalized.title,
                 normalized_title=normalized.normalized_title,

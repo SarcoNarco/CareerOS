@@ -467,3 +467,35 @@ Consequences:
 - safer and more reproducible ranking behavior
 - better auditability of model-driven artifacts
 - slightly more bookkeeping in the data model
+
+## Decision 019: Store MVP Embeddings As Portable JSON Vectors
+
+Date:
+
+2026-06-18
+
+Status:
+
+Accepted
+
+Context:
+
+The long-term architecture uses PostgreSQL with `pgvector`, and the Docker database image already supports it. The current MVP test harness also runs against SQLite, and the first retrieval slice does not need database-side approximate nearest-neighbor search.
+
+Decision:
+
+Persist embedding vectors as JSON lists in `entity_embeddings` for the first candidate retrieval implementation. Compute cosine similarity in the application service layer. Preserve the same lifecycle fields required by V2:
+
+- `content_hash`
+- `model_name`
+- `embedding_version`
+- `is_active`
+- `invalidated_at`
+- `invalidation_reason`
+
+Consequences:
+
+- keeps tests and local development portable
+- avoids introducing extra Python vector-store dependencies before scale requires them
+- makes candidate retrieval adequate for a personal MVP dataset
+- can later migrate the `embedding` column to `pgvector` and push similarity search into PostgreSQL without changing API semantics

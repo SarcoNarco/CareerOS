@@ -7,7 +7,7 @@ from sqlalchemy import Enum as SqlEnum
 from sqlalchemy import ForeignKey, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from careeros.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
+from careeros.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin, enum_values
 
 if TYPE_CHECKING:
     from careeros.db.models.extraction_run import ExtractionRun
@@ -32,6 +32,7 @@ class SourceDocument(UUIDPrimaryKeyMixin, TimestampMixin, Base):
             DocumentType,
             name="document_type",
             native_enum=False,
+            values_callable=enum_values,
             validate_strings=True,
         )
     )

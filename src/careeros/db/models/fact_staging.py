@@ -10,7 +10,7 @@ from sqlalchemy import DateTime, Enum as SqlEnum
 from sqlalchemy import ForeignKey, JSON, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from careeros.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
+from careeros.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin, enum_values
 
 if TYPE_CHECKING:
     from careeros.db.models.profile import Profile
@@ -53,6 +53,7 @@ class ExtractionRun(UUIDPrimaryKeyMixin, Base):
             ExtractionStatus,
             name="extraction_status",
             native_enum=False,
+            values_callable=enum_values,
             validate_strings=True,
         )
     )
@@ -83,6 +84,7 @@ class FactCandidate(UUIDPrimaryKeyMixin, Base):
             CandidateKind,
             name="candidate_kind",
             native_enum=False,
+            values_callable=enum_values,
             validate_strings=True,
         )
     )
@@ -96,6 +98,7 @@ class FactCandidate(UUIDPrimaryKeyMixin, Base):
             VerificationStatus,
             name="verification_status",
             native_enum=False,
+            values_callable=enum_values,
             validate_strings=True,
         ),
         default=VerificationStatus.PENDING,

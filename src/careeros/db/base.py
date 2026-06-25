@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from enum import Enum
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime
@@ -7,6 +8,10 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 def utc_now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def enum_values(enum_cls: type[Enum]) -> list[str]:
+    return [str(member.value) for member in enum_cls]
 
 
 class Base(DeclarativeBase):
@@ -24,4 +29,3 @@ class TimestampMixin:
         default=utc_now,
         onupdate=utc_now,
     )
-

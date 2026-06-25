@@ -7,7 +7,7 @@ from uuid import UUID
 
 from fastapi import HTTPException, status
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from careeros.db.base import utc_now
 from careeros.db.models.fact_staging import (
@@ -20,8 +20,8 @@ from careeros.db.models.fact_staging import (
 )
 from careeros.db.models.profile import Profile
 from careeros.db.models.source_document import SourceDocument
-from careeros.schemas.extraction import ExtractionSummaryResponse
-from careeros.services.candidate_generator import CandidateSeed, generate_candidates
+from careeros.schemas.extraction import ExtractionDiagnosticsResponse, ExtractionSummaryResponse
+from careeros.services.candidate_generator import CandidateSeed, generate_candidates_with_diagnostics
 from careeros.services.document_extractor import extract_text_from_path
 
 
@@ -65,7 +65,8 @@ def extract_document_candidates(session: Session, document_id: UUID) -> Extracti
     session.flush()
 
     try:
-        seeds = generate_candidates(extracted_text)
+        generation_result = generate_candidates_with_diagnostics(extracted_text)
+        seeds = generation_result.candidates
         persisted = _persist_candidates(
             session=session,
             extraction_run=extraction_run,
@@ -93,6 +94,7 @@ def extract_document_candidates(session: Session, document_id: UUID) -> Extracti
         "candidate_count": len(persisted),
         "evidence_span_count": evidence_span_count,
         "candidates_by_kind": counts_by_kind,
+        "diagnostics": generation_result.diagnostics,
     }
     session.commit()
     session.refresh(extraction_run)
@@ -107,6 +109,38 @@ def extract_document_candidates(session: Session, document_id: UUID) -> Extracti
         candidates_by_kind=counts_by_kind,
         started_at=extraction_run.started_at,
         completed_at=extraction_run.completed_at,
+    )
+
+
+def get_extraction_run_diagnostics(
+    session: Session,
+    extraction_run_id: UUID,
+) -> ExtractionDiagnosticsResponse:
+    extraction_run = session.scalar(
+        select(ExtractionRun)
+        .options(selectinload(ExtractionRun.fact_candidates))
+        .where(ExtractionRun.id == extraction_run_id)
+    )
+    if extraction_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Extraction run not found.",
+        )
+
+    output = extraction_run.output_json or {}
+    diagnostics = output.get("diagnostics") or {}
+    return ExtractionDiagnosticsResponse(
+        extraction_run_id=extraction_run.id,
+        source_document_id=extraction_run.source_document_id,
+        status=extraction_run.status,
+        sections_detected=diagnostics.get("sections_detected", {}),
+        candidate_counts_by_type=diagnostics.get(
+            "candidate_counts_by_type",
+            output.get("candidates_by_kind", {}),
+        ),
+        claim_counts_by_type=diagnostics.get("claim_counts_by_type", {}),
+        quality_metrics=diagnostics.get("quality_metrics", {}),
+        warnings=diagnostics.get("warnings", []),
     )
 
 
@@ -161,7 +195,10 @@ def _persist_candidates(
             )
             session.add(evidence)
 
-        if seed.parent_key and seed.candidate_kind == CandidateKind.PROJECT:
+        if seed.parent_key and seed.candidate_kind in {
+            CandidateKind.EXPERIENCE,
+            CandidateKind.PROJECT,
+        }:
             parent_lookup[seed.parent_key] = candidate
         elif seed.parent_key and parent_candidate is None:
             parent_lookup[f"orphan:{index}"] = candidate
@@ -175,9 +212,10 @@ def _persist_candidates(
 def _candidate_sort_key(seed: CandidateSeed) -> tuple[int, int]:
     priority = {
         CandidateKind.EDUCATION: 0,
-        CandidateKind.PROJECT: 1,
-        CandidateKind.SKILL: 2,
-        CandidateKind.CLAIM: 3,
+        CandidateKind.EXPERIENCE: 1,
+        CandidateKind.PROJECT: 2,
+        CandidateKind.SKILL: 3,
+        CandidateKind.CLAIM: 4,
     }
     first_start = seed.evidence_spans[0].start if seed.evidence_spans else 0
     return (priority.get(seed.candidate_kind, 99), first_start)

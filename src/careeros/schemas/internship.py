@@ -91,6 +91,7 @@ class InternshipResponse(BaseModel):
     source_id: UUID
     raw_posting_id: UUID
     title: str
+    normalized_title_id: UUID | None
     normalized_title: str
     company_name: str
     company_domain: str | None
@@ -99,6 +100,7 @@ class InternshipResponse(BaseModel):
     responsibilities: str | None
     application_url: str
     location_text: str | None
+    normalized_location_id: UUID | None
     normalized_location: str | None
     work_mode: WorkMode
     posted_at: datetime | None
@@ -118,3 +120,74 @@ class SourceIngestResponse(BaseModel):
 
 class InternshipListResponse(BaseModel):
     items: list[InternshipResponse]
+
+
+class SkillAliasResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    skill_id: UUID
+    alias: str
+    normalization_source: str
+    created_at: datetime
+
+
+class SkillResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    name: str
+    category: str
+    created_at: datetime
+    aliases: list[SkillAliasResponse] = Field(default_factory=list)
+
+
+class SkillListResponse(BaseModel):
+    items: list[SkillResponse]
+
+
+class NormalizedTitleResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    canonical_title: str
+    role_family: str
+    created_at: datetime
+
+
+class NormalizedLocationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    country: str | None
+    city: str | None
+    region: str | None
+    work_mode: WorkMode
+    canonical_label: str
+    created_at: datetime
+
+
+class InternshipSkillRequirementResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    internship_id: UUID
+    skill_id: UUID | None
+    skill_name_raw: str
+    requirement_strength: int
+    is_required: bool
+    extraction_method: str
+    created_at: datetime
+    skill: SkillResponse | None
+
+
+class InternshipSkillRequirementListResponse(BaseModel):
+    internship_id: UUID
+    items: list[InternshipSkillRequirementResponse]
+
+
+class InternshipNormalizeResponse(BaseModel):
+    internship: InternshipResponse
+    normalized_title: NormalizedTitleResponse
+    normalized_location: NormalizedLocationResponse
+    skill_requirements: list[InternshipSkillRequirementResponse]

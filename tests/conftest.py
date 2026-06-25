@@ -14,16 +14,31 @@ from careeros.core.config import Settings
 from careeros.db.base import Base
 from careeros.db.models import (  # noqa: F401
     ApprovedClaim,
+    ApplicationRecord,
+    EmbeddingRebuildQueue,
+    EntityEmbedding,
     ExtractionRun,
     FactCandidate,
     FactEvidenceSpan,
+    GeneratedResume,
+    GeneratedResumeClaim,
     IngestionRun,
     Internship,
+    InternshipMatch,
+    InternshipSkillRequirement,
     InternshipSource,
+    MatchRun,
+    NormalizedLocation,
+    NormalizedTitle,
     Profile,
     RawPosting,
+    ResumeTemplate,
+    SkillAlias,
+    SkillCatalog,
+    SkillGapItem,
     SourceDocument,
     SourcePolicy,
+    TitleAlias,
     User,
     VerificationEvent,
 )
@@ -38,6 +53,8 @@ def app_settings(tmp_path: Path) -> Settings:
         storage_root=tmp_path / "incoming",
         app_host="127.0.0.1",
         app_port=8001,
+        embedding_provider="deterministic",
+        embedding_dimension=64,
     )
 
 

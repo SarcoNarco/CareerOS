@@ -5,6 +5,7 @@ from fastapi import Depends, Header, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from careeros.core.config import Settings
+from careeros.services.embedding_provider import EmbeddingProvider
 
 
 def get_settings(request: Request) -> Settings:
@@ -18,6 +19,10 @@ def get_db_session(request: Request) -> Generator[Session, None, None]:
         yield session
     finally:
         session.close()
+
+
+def get_embedding_provider(request: Request) -> EmbeddingProvider:
+    return request.app.state.embedding_provider  # type: ignore[no-any-return]
 
 
 def require_api_token(

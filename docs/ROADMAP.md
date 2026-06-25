@@ -83,6 +83,8 @@ Implementation status:
 - Completed: profile creation, resume upload, source document persistence
 - Completed: deterministic extraction runs, fact candidates, and evidence spans
 - Completed: verification and claim promotion pipeline with approved claims and verification events
+- Completed quality pass: richer deterministic extraction for education, experience, projects, skills, and project/experience claims
+- Completed quality pass: extraction diagnostics endpoint for section coverage, candidate distribution, claim distribution, quality metrics, and warnings
 - Pending within broader phase: richer profile canonicalization beyond staging, additional source parsing coverage
 
 ## Phase 2: Internship Ingestion
@@ -119,7 +121,15 @@ Implementation status:
 - Completed foundation: manual source registry
 - Completed foundation: API-submitted manual internship payload ingestion
 - Completed foundation: ingestion runs, raw postings, normalized internships, and duplicate prevention
-- Pending within broader phase: external compliant source adapters, scheduled sync jobs, and multiple real source integrations
+- Completed foundation: structured title and location normalization tables
+- Completed foundation: initial skill catalog, skill aliases, and deterministic internship skill extraction
+- Completed foundation: internship skill requirement persistence and read API
+- Completed foundation: first real curated source adapter for Remotive's public API-style feed via `scripts/sync_source.py`
+- Completed foundation: second real curated source adapter for Arbeitnow's public API-style job-board feed via `scripts/sync_source.py`
+- Completed workflow pass: one-command real job discovery via `scripts/run_job_discovery.py`
+- Completed quality pass: source/latest-run scoped discovery prevents stale demo/manual jobs from dominating real-source rankings
+- Completed quality pass: Remotive deterministic filtering excludes obvious senior/staff/non-entry roles and includes intern/junior/entry-level signals
+- Pending within broader phase: additional compliant source adapters, scheduled sync jobs, and source-specific quality tuning
 
 ## Phase 3: Matching And Ranking
 
@@ -142,6 +152,21 @@ Acceptance criteria:
 - each ranking contains interpretable score components
 - at least basic gap analysis is visible per match
 
+Implementation status:
+
+- Completed foundation: local embedding provider abstraction with sentence-transformers default
+- Completed foundation: approved-claim and internship embedding creation
+- Completed foundation: embedding content hashes, versions, invalidation metadata, and rebuild queue
+- Completed foundation: semantic candidate internship retrieval using cosine similarity
+- Completed quality pass: real local `sentence-transformers` provider setup with deterministic fallback, lazy loading, provider smoke checks, and matching quality evaluation tooling
+- Completed foundation: hybrid scoring engine using the V2 weighted formula
+- Completed foundation: persisted match runs and internship match results
+- Completed foundation: deterministic structured score explanations
+- Completed foundation: persisted `skill_gap_items` for missing skills per internship match
+- Completed foundation: deterministic covered-skill detection, profile skill-gap listing, learning recommendations, and market top-skill aggregates
+- Completed workflow pass: real-source discovery now normalizes jobs, embeds jobs/profile claims, recomputes matches, computes gaps, and prints ranked results from one command
+- Pending within broader phase: richer explanation surfaces, source-specific ranking tuning, larger labeled ranking evaluation sets, and optional scoring integration for gap penalties
+
 ## Phase 4: Tailored Resume Generation
 
 Goal:
@@ -162,6 +187,13 @@ Acceptance criteria:
 - every rendered bullet can be traced to verified source facts
 - no unverified facts appear in output
 
+Implementation status:
+
+- Completed foundation: resume template, generated resume, and generated resume claim traceability tables
+- Completed foundation: deterministic claim selection from active approved claims only
+- Completed foundation: Jinja2 HTML resume rendering with one trace row per rendered claim
+- Pending within broader phase: richer editable templates, PDF export, resume artifact retrieval/download UX, and final human approval workflow
+
 ## Phase 5: Workflow Hardening
 
 Goal:
@@ -181,6 +213,19 @@ Acceptance criteria:
 - failures are diagnosable
 - reruns are safe
 - common maintenance tasks are scripted
+
+Implementation status:
+
+- Completed foundation: V1 end-to-end demo script using safe local sample data
+- Completed foundation: fictional sample resume and internship fixtures
+- Completed foundation: full-pipeline smoke test covering profile through truthful resume generation
+- Completed foundation: guarded demo reset script for demo-marked records only
+- Completed quality pass: demo reset now reports users, profiles, sources, and internships and also targets manual E2E/example-test pollution safely
+- Completed foundation: README developer guide for setup, Docker, migrations, tests, demo, API tokens, and resume safety guarantees
+- Completed workflow pass: lightweight application tracker with save, status updates, notes, filters, and archive behavior
+- Completed usability pass: minimal local Vite/React dashboard for matches, applications, and resume outputs
+- Completed completion pass: project doctor, V1 validation script, combined real-source discovery check, dashboard setup guidance, and GitHub-ready README polish
+- Pending within broader phase: artifact download UX, source-specific ingestion maintenance scripts, deeper source quality tuning, and production hardening
 
 ## Recommended Delivery Sequence
 
@@ -204,7 +249,7 @@ This order matters because the structured profile is the prerequisite for safe m
 
 ### Stage 3: Career Operating System Expansion
 
-- application tracker
+- richer application tracker views and reminders
 - company watchlists
 - saved search presets
 - outreach and networking notes
@@ -234,7 +279,7 @@ This should not happen before there is clear evidence of scale or maintenance pa
 - which exact job sources are compliant and maintainable long-term
 - whether remote fallback LLMs are acceptable for personal usage
 - whether resume generation should eventually support DOCX export
-- whether a lightweight frontend is needed before or after MVP stability
+- whether the local dashboard should remain developer-only or become a fuller personal app shell
 
 ## Definition Of Done For Version 1
 

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from logging.config import fileConfig
+from pathlib import Path
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from careeros.core.config import get_settings
 from careeros.db.base import Base
+from careeros.db.models.embedding import EmbeddingRebuildQueue, EntityEmbedding  # noqa: F401
 from careeros.db.models.fact_staging import (  # noqa: F401
     ExtractionRun,
     FactCandidate,
@@ -15,11 +17,19 @@ from careeros.db.models.fact_staging import (  # noqa: F401
 from careeros.db.models.internship import (  # noqa: F401
     IngestionRun,
     Internship,
+    InternshipSkillRequirement,
     InternshipSource,
+    NormalizedLocation,
+    NormalizedTitle,
     RawPosting,
+    SkillAlias,
+    SkillCatalog,
     SourcePolicy,
+    TitleAlias,
 )
+from careeros.db.models.matching import InternshipMatch, MatchRun, SkillGapItem  # noqa: F401
 from careeros.db.models.profile import Profile  # noqa: F401
+from careeros.db.models.resume import GeneratedResume, GeneratedResumeClaim, ResumeTemplate  # noqa: F401
 from careeros.db.models.source_document import SourceDocument  # noqa: F401
 from careeros.db.models.user import User  # noqa: F401
 from careeros.db.models.verification import ApprovedClaim, VerificationEvent  # noqa: F401
@@ -30,7 +40,10 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 settings = get_settings()
-config.set_main_option("sqlalchemy.url", settings.database_url)
+database_url = settings.database_url
+if "@db:5432" in database_url and not Path("/.dockerenv").exists():
+    database_url = database_url.replace("@db:5432", "@127.0.0.1:5432")
+config.set_main_option("sqlalchemy.url", database_url)
 
 target_metadata = Base.metadata
 

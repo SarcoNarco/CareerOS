@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session
 
 from careeros.api.deps import get_db_session, require_api_token
 from careeros.schemas.profile import ProfileCreateRequest, ProfileResponse
+from careeros.schemas.resume import GeneratedResumeListResponse, GeneratedResumeResponse
 from careeros.services.profile_service import create_profile, get_profile
+from careeros.services.resume_assembler import list_generated_resumes
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 
@@ -41,3 +43,17 @@ def get_profile_endpoint(
         )
     return ProfileResponse.model_validate(profile)
 
+
+@router.get(
+    "/{profile_id}/resumes",
+    response_model=GeneratedResumeListResponse,
+    dependencies=[Depends(require_api_token)],
+)
+def list_profile_resumes_endpoint(
+    profile_id: UUID,
+    session: Session = Depends(get_db_session),
+) -> GeneratedResumeListResponse:
+    resumes = list_generated_resumes(session=session, profile_id=profile_id)
+    return GeneratedResumeListResponse(
+        items=[GeneratedResumeResponse.model_validate(resume) for resume in resumes]
+    )

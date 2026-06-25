@@ -9,7 +9,7 @@ from sqlalchemy import DateTime, Enum as SqlEnum
 from sqlalchemy import ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from careeros.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
+from careeros.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin, enum_values
 
 if TYPE_CHECKING:
     from careeros.db.models.fact_staging import FactCandidate, FactEvidenceSpan
@@ -38,6 +38,7 @@ class ApprovedClaim(UUIDPrimaryKeyMixin, TimestampMixin, Base):
             ClaimStatus,
             name="claim_status",
             native_enum=False,
+            values_callable=enum_values,
             validate_strings=True,
         )
     )

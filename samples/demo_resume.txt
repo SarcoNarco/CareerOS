@@ -1,0 +1,23 @@
+EDUCATION
+Demo Institute of Technology, B.Tech Computer Science, 2026
+
+EXPERIENCE
+Backend Engineering Intern, Campus Tools Lab
+- Developed FastAPI APIs with PostgreSQL for a student project tracking dashboard
+- Automated Docker-based local setup and documented repeatable developer workflows
+
+PROJECTS
+Career Match Recommender
+- Built a Python service to rank internship opportunities using SQL, deterministic scoring, and approved profile claims
+- Designed explainable match summaries highlighting skill overlap and role alignment
+
+Plant Disease Classifier
+- Trained a PyTorch computer vision model to classify plant disease images
+- Visualized model predictions with Python and Streamlit for review by classmates
+
+SKILLS
+Languages: Python, SQL, JavaScript
+Backend: FastAPI, PostgreSQL, Docker
+AI/ML: Machine Learning, Deep Learning, PyTorch, scikit-learn, Pandas, NumPy
+Frontend: React
+Tools: Git, GitHub

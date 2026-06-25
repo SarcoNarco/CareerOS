@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -17,3 +18,13 @@ class ExtractionSummaryResponse(BaseModel):
     started_at: datetime
     completed_at: datetime | None
 
+
+class ExtractionDiagnosticsResponse(BaseModel):
+    extraction_run_id: UUID
+    source_document_id: UUID
+    status: ExtractionStatus
+    sections_detected: dict[str, dict[str, Any]]
+    candidate_counts_by_type: dict[str, int]
+    claim_counts_by_type: dict[str, int]
+    quality_metrics: dict[str, Any]
+    warnings: list[str]

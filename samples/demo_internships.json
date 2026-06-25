@@ -1,0 +1,54 @@
+[
+  {
+    "external_id": "demo-ml-intern",
+    "source_url": "https://demo.example.test/jobs/ml-intern",
+    "application_url": "https://demo.example.test/jobs/ml-intern/apply",
+    "title": "Machine Learning Intern",
+    "company_name": "Demo AI Lab",
+    "company_domain": "demo-ai.example.test",
+    "location": "Worldwide Remote",
+    "work_mode": "Remote",
+    "description": "Work on machine learning prototypes using Python, PyTorch, deep learning, pandas, NumPy, and SQL.",
+    "requirements": "Requirements: Python, Machine Learning, PyTorch, SQL, Pandas, and NumPy experience required.",
+    "responsibilities": "Build models, evaluate results, and communicate findings clearly."
+  },
+  {
+    "external_id": "demo-data-science-intern",
+    "source_url": "https://demo.example.test/jobs/data-science-intern",
+    "application_url": "https://demo.example.test/jobs/data-science-intern/apply",
+    "title": "Data Science Intern",
+    "company_name": "Demo Insight Works",
+    "company_domain": "demo-insight.example.test",
+    "location": "India Remote",
+    "work_mode": "Remote",
+    "description": "Analyze product data using Python, SQL, pandas, NumPy, statistics, dashboards, and machine learning.",
+    "requirements": "Requirements: Python, SQL, Pandas, NumPy, Machine Learning, and clear reporting.",
+    "responsibilities": "Create notebooks, summarize trends, and support experiment analysis."
+  },
+  {
+    "external_id": "demo-backend-intern",
+    "source_url": "https://demo.example.test/jobs/backend-intern",
+    "application_url": "https://demo.example.test/jobs/backend-intern/apply",
+    "title": "Backend Intern",
+    "company_name": "Demo Systems Studio",
+    "company_domain": "demo-systems.example.test",
+    "location": "Bengaluru Hybrid",
+    "work_mode": "Hybrid",
+    "description": "Build backend APIs and services using Python, FastAPI, PostgreSQL, Docker, Git, and SQL.",
+    "requirements": "Requirements: Python, FastAPI, PostgreSQL, Docker, SQL, and Git experience required.",
+    "responsibilities": "Implement API endpoints, write tests, and collaborate on service design."
+  },
+  {
+    "external_id": "demo-frontend-intern",
+    "source_url": "https://demo.example.test/jobs/frontend-intern",
+    "application_url": "https://demo.example.test/jobs/frontend-intern/apply",
+    "title": "Frontend Intern",
+    "company_name": "Demo Interface Co",
+    "company_domain": "demo-interface.example.test",
+    "location": "Mumbai Onsite",
+    "work_mode": "Onsite",
+    "description": "Build responsive UI features using JavaScript, React, CSS, Git, and accessibility best practices.",
+    "requirements": "Requirements: JavaScript, React, Git, and frontend engineering fundamentals.",
+    "responsibilities": "Implement components, review UI states, and improve usability."
+  }
+]
